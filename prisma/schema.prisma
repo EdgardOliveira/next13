@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum Access {
+  ALLOWED
+  DENIED
+}
+
+model Group {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String
+  status      Status   @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+
+  @@index([name, description])
+  @@map("groups")
+}
+
+model User {
+  id          Int          @id @default(autoincrement())
+  firstName   String
+  lastName    String
+  email       String
+  password    String
+  group       Group        @relation(fields: [groupId], references: [id])
+  groupId     Int
+  permissions Permission[]
+  status      Status       @default(ACTIVE)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([firstName, lastName, email, groupId])
+  @@map("users")
+}
+
+model Resource {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  description String
+  permissions Permission[]
+  status      Status       @default(ACTIVE)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([name, description])
+  @@map("resources")
+}
+
+model Permission {
+  user         User     @relation(fields: [userId], references: [id])
+  userId       Int
+  resource     Resource @relation(fields: [resourceId], references: [id])
+  resourceId   Int
+  listAccess   Access   @default(DENIED)
+  addAccess    Access   @default(DENIED)
+  updateAccess Access   @default(DENIED)
+  deleteAccess Access   @default(DENIED)
+  printAccess  Access   @default(DENIED)
+  exportAccess Access   @default(DENIED)
+  status       Status   @default(ACTIVE)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@id([userId, resourceId])
+  @@map("permissions")
+}

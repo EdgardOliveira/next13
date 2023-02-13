@@ -8,6 +8,7 @@ import { styled } from "@mui/material/styles";
 import { SnackbarProvider } from "notistack";
 
 import Header from "../header/Header";
+import ConfirmationDialog from "../confirmationDialog/ConfirmationDialog";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -22,12 +23,18 @@ interface IBaseLayoutProps {
   title: string;
   subtitle: string;
   children: ReactNode;
+  openDialog: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
 }
 
 export default function BaseLayout({
   title,
   subtitle,
   children,
+  openDialog,
+  onClose,
+  onConfirm,
 }: IBaseLayoutProps) {
   const [open, setOpen] = useState(false);
 
@@ -57,6 +64,13 @@ export default function BaseLayout({
           <Header title={title} subtitle={subtitle} />
           {children}
         </Box>
+        <ConfirmationDialog
+          title={"EXCLUIR REGISTRO"}
+          contentText={"Realmente deseja excluir este registro?"}
+          open={openDialog}
+          onClose={onClose}
+          onConfirm={onConfirm}
+        />
       </SnackbarProvider>
     </Box>
   );
